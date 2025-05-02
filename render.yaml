@@ -1,0 +1,29 @@
+services:
+  # Web service
+  - type: web
+    name: telegram-forwarder
+    env: python
+    buildCommand: pip install -r render-requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers=1 main:app
+    healthCheckPath: /
+    envVars:
+      - key: TELEGRAM_API_ID
+        sync: false
+      - key: TELEGRAM_API_HASH
+        sync: false
+      - key: TELEGRAM_PHONE
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: telegram-forwarder-db
+          property: connectionString
+
+# Database
+databases:
+  - name: telegram-forwarder-db
+    plan: free
+    databaseName: telegram_forwarder
+    user: telegram_forwarder
+    ipAllowList: []
