@@ -13,6 +13,8 @@ services:
         sync: false
       - key: TELEGRAM_PHONE
         sync: false
+      - key: USE_POSTGRES
+        value: "false"
       - key: SESSION_SECRET
         generateValue: true
       - key: DATABASE_URL
