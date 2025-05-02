@@ -81,9 +81,12 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # Configure the database
 database_url = os.environ.get("DATABASE_URL", "sqlite:///telegram_forwarder.db")
-# Fix for Postgres DATABASE_URL from Render (uses postgres:// instead of postgresql://)
+# More robust fix for Render's Postgres connection
 if database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
+# Use a direct SQLite database if we're having connection issues
+if os.environ.get("RENDER_EXTERNAL_URL") and not os.environ.get("USE_POSTGRES", "true").lower() == "true":
+    database_url = "sqlite:///telegram_forwarder.db"
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
