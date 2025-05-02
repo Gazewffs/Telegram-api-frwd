@@ -3,9 +3,8 @@ services:
   - type: web
     name: telegram-forwarder
     env: python
-    buildCommand: pip install -r render-requirements.txt
+    buildCommand: pip install -r requirements.txt
     startCommand: gunicorn --bind 0.0.0.0:$PORT --workers=1 main:app
-    healthCheckPath: /
     envVars:
       - key: API_ID
         sync: false
@@ -20,8 +19,8 @@ services:
           name: telegram-forwarder-db
           property: connectionString
 
-# Database
 databases:
   - name: telegram-forwarder-db
+    plan: free  # Add this line
     databaseName: telegram_forwarder
-    user: telegram_forwarder
+    ipAllowList: []
