@@ -1,0 +1,39 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Telegram session files (except placeholder)
+sessions/*
+!sessions/.gitkeep
+
+# Database
+instance/
+
+# Environment variables
+.env
+
+# Flask logs
+logs/
+
+# Config file with sensitive data
+# Note: For deployment, ensure you have a template config.ini without sensitive data
+
+# Virtual Environment
+venv/
+env/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
