@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Channel Settings - Telegram Channel Forwarder{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Channel Configuration</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div class="mb-4">
+                        <label for="sources" class="form-label">Source Channels</label>
+                        <textarea class="form-control" id="sources" name="sources" rows="4" placeholder="-1001234567890:Channel1,-1001098765432:Channel2">{{ sources }}</textarea>
+                        <div class="form-text">
+                            Format: <code>channel_id:channel_name,channel_id2:channel_name2</code><br>
+                            Example: <code>-1001234567890:Channel1,-1001098765432:Channel2</code>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="destinations" class="form-label">Destination Channels</label>
+                        <textarea class="form-control" id="destinations" name="destinations" rows="4" placeholder="-1001234567890:MyChannel,-1001098765432:BackupChannel">{{ destinations }}</textarea>
+                        <div class="form-text">
+                            Format: <code>channel_id:channel_name,channel_id2:channel_name2</code><br>
+                            Example: <code>-1001234567890:MyChannel,-1001098765432:BackupChannel</code><br>
+                            You must be an admin in these channels to send messages.
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Save Channels</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Help</h5>
+            </div>
+            <div class="card-body">
+                <h6>How to Get Channel IDs</h6>
+                <ol>
+                    <li>Forward a message from the target channel to a bot like @username_to_id_bot</li>
+                    <li>The bot will reply with the channel's ID</li>
+                    <li>For public channels, you can also use their username</li>
+                </ol>
+                
+                <div class="alert alert-info">
+                    <strong>Channel Format</strong>
+                    <p>Channel IDs for private channels usually start with <code>-100</code> followed by numbers.</p>
+                    <p class="mb-0">The channel name is just for your reference and can be anything you want.</p>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <strong>Important</strong>
+                    <p class="mb-0">You must be an admin in destination channels to post messages there.</p>
+                </div>
+                
+                <div class="alert alert-danger">
+                    <strong>Channel Permissions</strong>
+                    <p class="mb-0">Make sure you have joined all the source channels and have permission to view their messages.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

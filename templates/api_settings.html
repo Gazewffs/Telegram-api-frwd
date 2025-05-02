@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}API Settings - Telegram Channel Forwarder{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Telegram API Settings</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="api_id" class="form-label">API ID</label>
+                        <input type="text" class="form-control" id="api_id" name="api_id" value="{{ api_id }}" required>
+                        <div class="form-text">Your Telegram API ID from <a href="https://my.telegram.org/apps" target="_blank">my.telegram.org/apps</a></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="api_hash" class="form-label">API Hash</label>
+                        <input type="text" class="form-control" id="api_hash" name="api_hash" value="{{ api_hash }}" required>
+                        <div class="form-text">Your Telegram API Hash from <a href="https://my.telegram.org/apps" target="_blank">my.telegram.org/apps</a></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="phone_number" class="form-label">Phone Number</label>
+                        <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ phone_number }}" required>
+                        <div class="form-text">Your Telegram account phone number (with country code), e.g. +12025550123</div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Save Settings</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Help</h5>
+            </div>
+            <div class="card-body">
+                <h6>How to Get API Credentials</h6>
+                <ol>
+                    <li>Go to <a href="https://my.telegram.org/apps" target="_blank">my.telegram.org/apps</a> and log in with your Telegram account.</li>
+                    <li>Fill out the form to create a new application if you don't have one already.</li>
+                    <li>Once created, you'll see your API ID and API Hash. Copy these values.</li>
+                    <li>Enter the values in the form on the left.</li>
+                </ol>
+                
+                <div class="alert alert-warning">
+                    <strong>Important Security Note</strong>
+                    <p class="mb-0">Keep your API ID and API Hash private. Do not share them with others.</p>
+                </div>
+                
+                <div class="alert alert-info">
+                    <strong>First-time Authentication</strong>
+                    <p class="mb-0">When starting the bot for the first time, you'll need to enter a verification code sent to your Telegram account.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

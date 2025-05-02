@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Advanced Settings - Telegram Channel Forwarder{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Advanced Configuration</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="session_path" class="form-label">Session Storage Path</label>
+                        <input type="text" class="form-control" id="session_path" name="session_path" value="{{ session_path }}" placeholder="sessions/user_session">
+                        <div class="form-text">Directory where Telegram session files are stored</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="check_interval" class="form-label">Check Interval (seconds)</label>
+                        <input type="number" class="form-control" id="check_interval" name="check_interval" value="{{ check_interval }}" min="1" max="60">
+                        <div class="form-text">Time in seconds between checking source channels for new messages</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="max_message_age" class="form-label">Maximum Message Age (hours)</label>
+                        <input type="number" class="form-control" id="max_message_age" name="max_message_age" value="{{ max_message_age }}" min="1" max="168">
+                        <div class="form-text">Only process messages newer than this many hours</div>
+                    </div>
+                    
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="preserve_formatting" name="preserve_formatting" {% if preserve_formatting %}checked{% endif %}>
+                        <label class="form-check-label" for="preserve_formatting">Preserve Message Formatting</label>
+                        <div class="form-text">Keep bold, italic, links and other formatting in forwarded messages</div>
+                    </div>
+                    
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="copy_media" name="copy_media" {% if copy_media %}checked{% endif %}>
+                        <label class="form-check-label" for="copy_media">Copy Media Files</label>
+                        <div class="form-text">When enabled, media files (images, videos, documents) will be included in forwarded messages</div>
+                    </div>
+                    
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="verbose_logging" name="verbose_logging" {% if verbose_logging %}checked{% endif %}>
+                        <label class="form-check-label" for="verbose_logging">Verbose Logging</label>
+                        <div class="form-text">Enable detailed logging for debugging purposes</div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Save Advanced Settings</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Help</h5>
+            </div>
+            <div class="card-body">
+                <h6>Advanced Settings Explained</h6>
+                
+                <h6 class="mt-3">Session Path</h6>
+                <p>This is where your Telegram session data is stored. The session file contains your authentication information, so you don't have to login every time.</p>
+                
+                <h6 class="mt-3">Check Interval</h6>
+                <p>How often the bot checks for new messages in source channels. A lower value means faster forwarding but might hit rate limits sooner.</p>
+                
+                <h6 class="mt-3">Message Age</h6>
+                <p>Only messages newer than this will be processed. Older messages are ignored to prevent forwarding historical content.</p>
+                
+                <div class="alert alert-warning mt-3">
+                    <strong>Rate Limiting</strong>
+                    <p class="mb-0">Telegram has rate limits for API calls. If you set intervals too low or have many channels, you might hit these limits.</p>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <strong>Performance Tip</strong>
+                    <p class="mb-0">For most users, the default settings work well. Only change these if you have specific requirements.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

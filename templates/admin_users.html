@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}User Management - Telegram Channel Forwarder{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">User Management</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Admin</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>
+                                    {% if user.is_admin %}
+                                    <span class="badge bg-success">Admin</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">User</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    <form method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                                        <button type="submit" class="btn btn-danger btn-sm"{% if user.id == session.get('user_id') %} disabled title="Cannot delete yourself"{% endif %}>Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Add New User</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <input type="hidden" name="action" value="add">
+                    
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="is_admin" name="is_admin">
+                        <label class="form-check-label" for="is_admin">
+                            Admin User
+                        </label>
+                        <div class="form-text">Admin users can manage other users and access all settings</div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Add User</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">User Management Tips</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">✅ Create separate accounts for each user</li>
+                    <li class="mb-2">✅ Limit admin access to trusted users</li>
+                    <li class="mb-2">✅ Use strong, unique passwords</li>
+                    <li class="mb-2">❌ Do not share credentials</li>
+                    <li class="mb-2">❌ Do not use the same password across users</li>
+                </ul>
+                
+                <div class="alert alert-warning mt-3">
+                    <p class="mb-0"><strong>Note:</strong> You cannot delete your own account while logged in.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Text Filter Settings - Telegram Channel Forwarder{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Text Filter Configuration</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="enabled" name="enabled" {% if enabled %}checked{% endif %}>
+                        <label class="form-check-label" for="enabled">Enable Text Filtering</label>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="blacklist_keywords" class="form-label">Blacklist Keywords</label>
+                        <textarea class="form-control" id="blacklist_keywords" name="blacklist_keywords" rows="3" placeholder="ads,sponsored,promotion">{{ blacklist_keywords }}</textarea>
+                        <div class="form-text">
+                            Comma-separated list of keywords. Messages containing these words will not be forwarded.<br>
+                            Example: <code>ads,sponsored,promotion</code>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="replacements" class="form-label">Text Replacements</label>
+                        <textarea class="form-control" id="replacements" name="replacements" rows="3" placeholder="word1:replacement1,word2:replacement2">{{ replacements }}</textarea>
+                        <div class="form-text">
+                            Format: <code>original_text:replacement_text,original_text2:replacement_text2</code><br>
+                            Example: <code>bad word:good word,Company X:Company Y</code>
+                        </div>
+                    </div>
+                    
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="regex_enabled" name="regex_enabled" {% if regex_enabled %}checked{% endif %}>
+                        <label class="form-check-label" for="regex_enabled">Enable Regular Expression Filtering</label>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="regex_patterns" class="form-label">Regular Expression Patterns</label>
+                        <textarea class="form-control" id="regex_patterns" name="regex_patterns" rows="3" placeholder="pattern1:replacement1,pattern2:replacement2">{{ regex_patterns }}</textarea>
+                        <div class="form-text">
+                            Format: <code>pattern:replacement,pattern2:replacement2</code><br>
+                            Example: <code>\b(USD|EUR) (\d+):$2 $1,https?://t\.me/\w+:</code><br>
+                            Advanced users only. Use Python regular expression syntax.
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Save Filter Settings</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Help</h5>
+            </div>
+            <div class="card-body">
+                <h6>Text Filter Options</h6>
+                
+                <h6 class="mt-3">Blacklist Keywords</h6>
+                <p>Messages containing any of these keywords will be completely skipped and not forwarded. This is useful for filtering out ads, announcements, or specific content you don't want to forward.</p>
+                
+                <h6 class="mt-3">Text Replacements</h6>
+                <p>Simple word or phrase replacement. Every occurrence of the original text will be replaced with the replacement text. Case-sensitive.</p>
+                
+                <h6 class="mt-3">Regular Expressions</h6>
+                <p>Advanced pattern matching and replacement. For users familiar with regular expressions.</p>
+                
+                <div class="alert alert-info mt-3">
+                    <strong>Tip</strong>
+                    <p class="mb-0">To remove text without replacing it, use an empty replacement value (e.g., <code>text_to_remove:</code>)</p>
+                </div>
+                
+                <div class="alert alert-warning mt-3">
+                    <strong>Note</strong>
+                    <p class="mb-0">Regular expressions are applied after simple text replacements.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

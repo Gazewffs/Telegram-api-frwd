@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Media Settings - Telegram Channel Forwarder{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Media Processing Configuration</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="media_enabled" name="media_enabled" {% if media_enabled %}checked{% endif %}>
+                        <label class="form-check-label" for="media_enabled">Enable Media Processing</label>
+                    </div>
+                    
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="replace_all_images" name="replace_all_images" {% if replace_all_images %}checked{% endif %}>
+                        <label class="form-check-label" for="replace_all_images">Replace All Images with Default Image</label>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="replacement_image_path" class="form-label">Default Replacement Image Path</label>
+                        <input type="text" class="form-control" id="replacement_image_path" name="replacement_image_path" value="{{ replacement_image_path }}" placeholder="images/replacement.jpg">
+                        <div class="form-text">
+                            Path to the image file that will replace all images when "Replace All Images" is enabled.<br>
+                            Relative paths are based on the application directory.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="image_replacements" class="form-label">Specific Image Replacements</label>
+                        <textarea class="form-control" id="image_replacements" name="image_replacements" rows="4" placeholder="hash1:path1,hash2:path2">{{ image_replacements }}</textarea>
+                        <div class="form-text">
+                            Format: <code>image_hash:replacement_path,image_hash2:replacement_path2</code><br>
+                            Example: <code>1a2b3c4d5e6f7g8h:images/custom1.jpg,8h7g6f5e4d3c2b1a:images/custom2.jpg</code><br>
+                            To get the hash of an image, run the bot and check the logs when processing the image.
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Save Media Settings</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Help</h5>
+            </div>
+            <div class="card-body">
+                <h6>Media Processing Options</h6>
+                
+                <h6 class="mt-3">Replace All Images</h6>
+                <p>When enabled, all images in forwarded messages will be replaced with the default replacement image. This is useful if you want to avoid copyright issues or remove watermarks from all images.</p>
+                
+                <h6 class="mt-3">Specific Image Replacements</h6>
+                <p>This allows you to replace only specific images based on their hash. The bot calculates a hash for each image and compares it to your list of replacements.</p>
+                
+                <div class="alert alert-info mt-3">
+                    <strong>How to Get Image Hashes</strong>
+                    <p class="mb-0">Start the bot with verbose logging enabled, then check the logs for media hash values when messages with images are processed.</p>
+                </div>
+                
+                <div class="alert alert-warning mt-3">
+                    <strong>Note</strong>
+                    <p class="mb-0">Make sure the replacement image files exist in the specified paths before enabling these features.</p>
+                </div>
+                
+                <div class="mt-3">
+                    <h6>Supported Image Formats</h6>
+                    <p>JPEG, PNG, GIF, WebP, and other formats supported by Telegram.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

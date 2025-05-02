@@ -1,0 +1,467 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Telegram Channel Forwarder{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Telegram Authentication Modal -->
+        <div class="modal fade" id="telegramAuthModal" tabindex="-1" aria-labelledby="telegramAuthModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="telegramAuthModalLabel">Telegram Authentication Required</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="verification-code-form">
+                            <p>A verification code has been sent to your Telegram account. Please enter it below:</p>
+                            <div class="mb-3">
+                                <label for="verification-code" class="form-label">Verification Code</label>
+                                <input type="text" class="form-control" id="verification-code" placeholder="Enter verification code">
+                            </div>
+                            <div class="alert alert-info">
+                                <small>Check your Telegram app for the verification code.</small>
+                            </div>
+                        </div>
+                        
+                        <div id="2fa-password-form" style="display: none;">
+                            <p>Two-Factor Authentication is enabled. Please enter your 2FA password:</p>
+                            <div class="mb-3">
+                                <label for="2fa-password" class="form-label">2FA Password</label>
+                                <input type="password" class="form-control" id="2fa-password" placeholder="Enter 2FA password">
+                            </div>
+                        </div>
+                        
+                        <div id="auth-error" class="alert alert-danger" style="display: none;"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="submit-code-btn">Submit</button>
+                        <button type="button" class="btn btn-primary" id="submit-password-btn" style="display: none;">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Bot Status</h5>
+                <div>
+                    {% if bot_running %}
+                    <button id="stop-bot" class="btn btn-danger btn-sm">Stop Bot</button>
+                    {% else %}
+                    <button id="start-bot" class="btn btn-success btn-sm" {% if not api_configured or not channels_configured %}disabled{% endif %}>Start Bot</button>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="me-3">
+                        <span class="d-inline-block rounded-circle {% if bot_running %}bg-success{% else %}bg-danger{% endif %}" style="width: 12px; height: 12px;"></span>
+                    </div>
+                    <div>
+                        <span>Status: <strong>{% if bot_running %}Running{% else %}Stopped{% endif %}</strong></span>
+                    </div>
+                </div>
+                
+                <div class="alert {% if api_configured and channels_configured %}alert-success{% else %}alert-warning{% endif %}">
+                    <h6 class="alert-heading">Configuration Status</h6>
+                    <ul class="list-unstyled mb-0">
+                        <li>
+                            <span class="me-2">{% if api_configured %}✅{% else %}❌{% endif %}</span>
+                            API Credentials: {% if api_configured %}Configured{% else %}Not Configured - <a href="{{ url_for('api_settings') }}">Configure Now</a>{% endif %}
+                        </li>
+                        <li>
+                            <span class="me-2">{% if channels_configured %}✅{% else %}❌{% endif %}</span>
+                            Channels: {% if channels_configured %}Configured{% else %}Not Configured - <a href="{{ url_for('channel_settings') }}">Configure Now</a>{% endif %}
+                        </li>
+                    </ul>
+                </div>
+                
+                {% if not api_configured or not channels_configured %}
+                <div class="alert alert-info">
+                    <h6 class="alert-heading">Getting Started</h6>
+                    <ol>
+                        <li>First, <a href="{{ url_for('api_settings') }}">configure your Telegram API credentials</a> - Get them from <a href="https://my.telegram.org/apps" target="_blank">my.telegram.org/apps</a>.</li>
+                        <li>Then, <a href="{{ url_for('channel_settings') }}">set up your source and destination channels</a>.</li>
+                        <li>Optionally, configure <a href="{{ url_for('filter_settings') }}">text filters</a> and <a href="{{ url_for('media_settings') }}">media handling</a>.</li>
+                        <li>Start the bot using the button above.</li>
+                    </ol>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Logs</h5>
+            </div>
+            <div class="card-body p-0">
+                <div id="log-container" class="log-container p-3">
+                    <div id="log-entries">
+                        <div class="text-center text-muted py-5">
+                            <p>No logs available yet.</p>
+                            <p>Start the bot to see logs here.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('api_settings') }}" class="btn btn-outline-primary">API Settings</a>
+                    <a href="{{ url_for('channel_settings') }}" class="btn btn-outline-primary">Channel Management</a>
+                    <a href="{{ url_for('filter_settings') }}" class="btn btn-outline-primary">Text Filters</a>
+                    <a href="{{ url_for('media_settings') }}" class="btn btn-outline-primary">Media Options</a>
+                    <a href="{{ url_for('advanced_settings') }}" class="btn btn-outline-primary">Advanced Settings</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Help</h5>
+            </div>
+            <div class="card-body">
+                <h6>About This Bot</h6>
+                <p>This bot uses your Telegram account to forward messages from restricted channels to other channels where you are an admin.</p>
+                
+                <h6>Features</h6>
+                <ul>
+                    <li>Forward messages from any channel you have access to</li>
+                    <li>Apply text filters and replacements</li>
+                    <li>Replace images</li>
+                    <li>Preserve message formatting</li>
+                </ul>
+                
+                <h6>Need Help?</h6>
+                <p>Refer to the documentation in the <a href="https://github.com/yourusername/telegram-forwarder" target="_blank">GitHub repository</a>.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startButton = document.getElementById('start-bot');
+    const stopButton = document.getElementById('stop-bot');
+    const logContainer = document.getElementById('log-container');
+    const logEntries = document.getElementById('log-entries');
+    
+    // Telegram Auth Modal Elements
+    let telegramAuthModal;
+    try {
+        // Initialize the modal
+        const modalElement = document.getElementById('telegramAuthModal');
+        if (modalElement) {
+            telegramAuthModal = new bootstrap.Modal(modalElement, {
+                backdrop: 'static',
+                keyboard: false
+            });
+        } else {
+            console.error('Modal element not found');
+        }
+    } catch (error) {
+        console.error('Error initializing modal:', error);
+    }
+    const verificationCodeForm = document.getElementById('verification-code-form');
+    const twoFaPasswordForm = document.getElementById('2fa-password-form');
+    const verificationCodeInput = document.getElementById('verification-code');
+    const twoFaPasswordInput = document.getElementById('2fa-password');
+    const submitCodeBtn = document.getElementById('submit-code-btn');
+    const submitPasswordBtn = document.getElementById('submit-password-btn');
+    const authErrorDisplay = document.getElementById('auth-error');
+    
+    // Handle Telegram Authentication
+    function checkTelegramAuth(data) {
+        if (data.auth_status) {
+            const status = data.auth_status.status;
+            
+            if (status === 'waiting_for_code') {
+                // Show verification code modal
+                verificationCodeForm.style.display = 'block';
+                twoFaPasswordForm.style.display = 'none';
+                submitCodeBtn.style.display = 'block';
+                submitPasswordBtn.style.display = 'none';
+                authErrorDisplay.style.display = 'none';
+                
+                if (telegramAuthModal) {
+                    try {
+                        telegramAuthModal.show();
+                    } catch (error) {
+                        console.error('Error showing modal:', error);
+                        // Fallback method to show modal if Bootstrap's show() fails
+                        const modalElement = document.getElementById('telegramAuthModal');
+                        if (modalElement) {
+                            modalElement.classList.add('show');
+                            modalElement.style.display = 'block';
+                            document.body.classList.add('modal-open');
+                            const backdrop = document.createElement('div');
+                            backdrop.className = 'modal-backdrop fade show';
+                            document.body.appendChild(backdrop);
+                        }
+                    }
+                } else {
+                    console.error('Telegram auth modal is not initialized');
+                    alert('Please enter verification code in the command line');
+                }
+            } 
+            else if (status === 'waiting_for_password') {
+                // Show 2FA password form
+                verificationCodeForm.style.display = 'none';
+                twoFaPasswordForm.style.display = 'block';
+                submitCodeBtn.style.display = 'none';
+                submitPasswordBtn.style.display = 'block';
+                authErrorDisplay.style.display = 'none';
+                
+                if (telegramAuthModal) {
+                    try {
+                        telegramAuthModal.show();
+                    } catch (error) {
+                        console.error('Error showing modal:', error);
+                    }
+                }
+            }
+            else if (status === 'error' && data.auth_status.error) {
+                // Show error message
+                authErrorDisplay.textContent = data.auth_status.error;
+                authErrorDisplay.style.display = 'block';
+                
+                if (telegramAuthModal) {
+                    try {
+                        telegramAuthModal.show();
+                    } catch (error) {
+                        console.error('Error showing modal:', error);
+                    }
+                }
+            }
+            else if (status === 'authorized') {
+                // Authentication completed
+                if (telegramAuthModal) {
+                    try {
+                        telegramAuthModal.hide();
+                    } catch (error) {
+                        console.error('Error hiding modal:', error);
+                        // Fallback method to hide modal
+                        const modalElement = document.getElementById('telegramAuthModal');
+                        if (modalElement) {
+                            modalElement.classList.remove('show');
+                            modalElement.style.display = 'none';
+                            document.body.classList.remove('modal-open');
+                            const backdrop = document.querySelector('.modal-backdrop');
+                            if (backdrop) {
+                                backdrop.remove();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // Submit Verification Code
+    submitCodeBtn.addEventListener('click', function() {
+        const code = verificationCodeInput.value.trim();
+        if (!code) {
+            authErrorDisplay.textContent = 'Please enter the verification code';
+            authErrorDisplay.style.display = 'block';
+            return;
+        }
+        
+        submitCodeBtn.disabled = true;
+        submitCodeBtn.textContent = 'Submitting...';
+        
+        const formData = new FormData();
+        formData.append('auth_type', 'verification_code');
+        formData.append('code', code);
+        
+        fetch('/bot/auth', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                authErrorDisplay.style.display = 'none';
+                // Wait for next status update
+                setTimeout(updateStatus, 1000);
+            } else {
+                authErrorDisplay.textContent = data.message;
+                authErrorDisplay.style.display = 'block';
+            }
+            submitCodeBtn.disabled = false;
+            submitCodeBtn.textContent = 'Submit';
+        })
+        .catch(error => {
+            console.error('Error submitting verification code:', error);
+            authErrorDisplay.textContent = 'An error occurred. Please try again.';
+            authErrorDisplay.style.display = 'block';
+            submitCodeBtn.disabled = false;
+            submitCodeBtn.textContent = 'Submit';
+        });
+    });
+    
+    // Submit 2FA Password
+    submitPasswordBtn.addEventListener('click', function() {
+        const password = twoFaPasswordInput.value;
+        if (!password) {
+            authErrorDisplay.textContent = 'Please enter your 2FA password';
+            authErrorDisplay.style.display = 'block';
+            return;
+        }
+        
+        submitPasswordBtn.disabled = true;
+        submitPasswordBtn.textContent = 'Submitting...';
+        
+        const formData = new FormData();
+        formData.append('auth_type', 'password');
+        formData.append('password', password);
+        
+        fetch('/bot/auth', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                authErrorDisplay.style.display = 'none';
+                // Wait for next status update
+                setTimeout(updateStatus, 1000);
+            } else {
+                authErrorDisplay.textContent = data.message;
+                authErrorDisplay.style.display = 'block';
+            }
+            submitPasswordBtn.disabled = false;
+            submitPasswordBtn.textContent = 'Submit';
+        })
+        .catch(error => {
+            console.error('Error submitting 2FA password:', error);
+            authErrorDisplay.textContent = 'An error occurred. Please try again.';
+            authErrorDisplay.style.display = 'block';
+            submitPasswordBtn.disabled = false;
+            submitPasswordBtn.textContent = 'Submit';
+        });
+    });
+    
+    // Function to update bot status and logs
+    function updateStatus() {
+        fetch('/bot/status')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Check if Telegram auth is needed
+                    checkTelegramAuth(data);
+                    
+                    // Update logs
+                    if (data.logs && data.logs.length > 0) {
+                        // Clear "no logs" message if present
+                        if (logEntries.querySelector('.text-muted')) {
+                            logEntries.innerHTML = '';
+                        }
+                        
+                        // Add log entries
+                        data.logs.forEach(log => {
+                            // Check if log entry already exists
+                            const existingLog = document.getElementById(`log-${log.timestamp.replace(/[^a-zA-Z0-9]/g, '')}`);
+                            if (!existingLog) {
+                                const logEntry = document.createElement('div');
+                                logEntry.id = `log-${log.timestamp.replace(/[^a-zA-Z0-9]/g, '')}`;
+                                logEntry.className = `log-entry log-${log.level}`;
+                                logEntry.innerHTML = `
+                                    <span class="log-timestamp">${log.timestamp}</span>
+                                    <span>${log.message}</span>
+                                `;
+                                logEntries.appendChild(logEntry);
+                            }
+                        });
+                        
+                        // Scroll to bottom
+                        logContainer.scrollTop = logContainer.scrollHeight;
+                    }
+                }
+            })
+            .catch(error => console.error('Error updating status:', error));
+    }
+    
+    // Set up start/stop buttons
+    if (startButton) {
+        startButton.addEventListener('click', function() {
+            startButton.disabled = true;
+            startButton.textContent = 'Starting...';
+            
+            fetch('/bot/start', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Failed to start bot: ' + data.message);
+                    startButton.disabled = false;
+                    startButton.textContent = 'Start Bot';
+                }
+            })
+            .catch(error => {
+                console.error('Error starting bot:', error);
+                startButton.disabled = false;
+                startButton.textContent = 'Start Bot';
+            });
+        });
+    }
+    
+    if (stopButton) {
+        stopButton.addEventListener('click', function() {
+            stopButton.disabled = true;
+            stopButton.textContent = 'Stopping...';
+            
+            fetch('/bot/stop', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Failed to stop bot: ' + data.message);
+                    stopButton.disabled = false;
+                    stopButton.textContent = 'Stop Bot';
+                }
+            })
+            .catch(error => {
+                console.error('Error stopping bot:', error);
+                stopButton.disabled = false;
+                stopButton.textContent = 'Stop Bot';
+            });
+        });
+    }
+    
+    // Handle keypresses in auth modal
+    verificationCodeInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            submitCodeBtn.click();
+        }
+    });
+    
+    twoFaPasswordInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            submitPasswordBtn.click();
+        }
+    });
+    
+    // Update status initially and every 5 seconds
+    updateStatus();
+    setInterval(updateStatus, 5000);
+});
+</script>
+{% endblock %}

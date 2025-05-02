@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Telegram Verification - Telegram Channel Forwarder{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Telegram Authentication Required</h5>
+            </div>
+            <div class="card-body">
+                {% if bot_status %}
+                <div class="alert alert-info mb-3">
+                    <i class="bi bi-info-circle-fill me-2"></i> {{ bot_status }}
+                </div>
+                {% endif %}
+                
+                <form method="post" action="{{ url_for('verification_code') }}">
+                    <div class="mb-4">
+                        <h6>Verification Code</h6>
+                        <p>A verification code has been sent to your Telegram account. Please enter it below:</p>
+                        <div class="mb-3">
+                            <label for="code" class="form-label">Verification Code</label>
+                            <input type="text" class="form-control" id="code" name="code" placeholder="Enter code" required autofocus>
+                        </div>
+                    </div>
+                    
+                    {% if error %}
+                    <div class="alert alert-danger">
+                        {{ error }}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="alert alert-info">
+                        <strong>How to find your code:</strong>
+                        <ol class="mb-0">
+                            <li>Open your Telegram app</li>
+                            <li>Check for a message from "Telegram"</li>
+                            <li>Enter the code from that message</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Submit Code</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
